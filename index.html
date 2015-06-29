@@ -23,21 +23,35 @@
             return({
                points: 0,
                activeEnemies: 0,
-               enemies: [1,2,3,4],
+               enemies: null,
                clearedWave: false
             });
          },
 
-         handlePass: function(thing, idnum){
+         componentDidMount: function(){
+           this.generateNewWave();
+         },
+
+         handlePass: function(thing){
+            React.unmountComponentAtNode(document.getElementById(thing));
             this.setState({
                points: this.state.points + 1
+            });
+            this.generateNewWave();
+         },
+
+         generateNewWave: function(){
+            var enemies = [];
+            for(var i=this.state.points; i < this.state.points+4; i++){
+                enemies.push(<Enemy id={i} pass={this.handlePass} />);
+            }
+            console.log(enemies);
+            this.setState({
+                enemies: enemies
             });
          },
 
          render: function() {
-            var enemies = this.state.enemies.map(function(enemy){
-                return <Enemy id={enemy} uid={enemy} pass={this.handlePass} />
-            }.bind(this));
             var divStyle = {
                background: 'black',
                height: '500px',
@@ -47,7 +61,7 @@
                <div style={divStyle} className="game">
                <h1>{this.state.points}</h1>
                <Player />
-               {enemies}
+               {this.state.enemies}
                </div>
             );
          }
@@ -60,7 +74,7 @@
 
          moveDown: function(){
             if(this.state.yPos > 500 && !this.state.passed){
-                this.props.pass();
+                this.props.pass(this.props.id);
                 this.setState({
                    passed: true
                 });
@@ -89,7 +103,7 @@
             };
             if(!this.state.passed){
                return(
-                 <div style={divStyle} className="enemy" />
+                 <div id={this.props.id} style={divStyle} className="enemy" />
                );
             }
              return <div />
