@@ -23,13 +23,13 @@
             return({
                points: 0,
                activeEnemies: 0,
-               enemies: null,
+               enemies: [],
                clearedWave: false
             });
          },
 
          componentDidMount: function(){
-           this.generateNewWave();
+           this.generateNew();
          },
 
          handlePass: function(thing){
@@ -37,12 +37,13 @@
             this.setState({
                points: this.state.points + 1
             });
-            this.generateNewWave();
+            this.generateNew();
          },
 
-         generateNewWave: function(){
-            var enemies = [];
-            for(var i=this.state.points; i < this.state.points+4; i++){
+         generateNew: function(){
+            var enemies = this.state.enemies;
+            for(var i=this.state.points; i < this.state.points+1; i++){
+                console.log(i);
                 enemies.push(<Enemy id={i} pass={this.handlePass} />);
             }
             console.log(enemies);
