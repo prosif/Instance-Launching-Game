@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Ayy</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/0.13.3/react.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/0.13.3/JSXTransformer.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script> 
+    <style>
+        h1{
+            position: absolute;
+            color: white;
+        }
+    </style>
+  </head>
+
+  <body>
+    <div id="content"></div>
+
+    <script type="text/jsx">
+      var Game = React.createClass({
+
+         getInitialState: function(){
+            return({
+               points: 0,
+               activeEnemies: 0,
+               enemies: [1,2,3,4],
+               clearedWave: false
+            });
+         },
+
+         handlePass: function(thing, idnum){
+            this.setState({
+               points: this.state.points + 1
+            });
+         },
+
+         render: function() {
+            var enemies = this.state.enemies.map(function(enemy){
+                return <Enemy id={enemy} uid={enemy} pass={this.handlePass} />
+            }.bind(this));
+            var divStyle = {
+               background: 'black',
+               height: '500px',
+               width: '100%'
+            };
+            return (
+               <div style={divStyle} className="game">
+               <h1>{this.state.points}</h1>
+               <Player />
+               {enemies}
+               </div>
+            );
+         }
+      });
+
+      var Enemy = React.createClass({
+         componentDidMount: function(){ 
+            setInterval(function(){this.moveDown()}.bind(this), 1000);
+         },
+
+         moveDown: function(){
+            if(this.state.yPos > 500 && !this.state.passed){
+                this.props.pass();
+                this.setState({
+                   passed: true
+                });
+            }
+            else {
+                this.setState({yPos: this.state.yPos + 100});
+            }
+         },
+ 
+         getInitialState: function(){
+            return({
+               xPos: Math.random() * 1180,
+               yPos: 0,
+               passed: false
+            })
+         },
+         
+         render: function(){
+            var divStyle = {
+               background: 'blue',
+               height: '100px',
+               width: '100px',
+               position: 'absolute',
+               left: this.state.xPos,
+               top: this.state.yPos
+            };
+            if(!this.state.passed){
+               return(
+                 <div style={divStyle} className="enemy" />
+               );
+            }
+             return <div />
+         }
+      });
+
+      var Player = React.createClass({
+         moveBox: function(code){
+            switch(code){
+               case 37:
+                  this.setState({xPos: this.state.xPos-20});
+                  break; 
+               case 39:
+                  this.setState({xPos: this.state.xPos+20});
+                  break;
+            }
+         },
+
+         handleKeyDown: function(e){
+            keyCode = e.keyCode;
+            if(keyCode > 36 && keyCode < 41){
+               this.moveBox(keyCode);
+            }
+         },
+
+         componentDidMount: function(){
+            $(document.body).on('keydown', this.handleKeyDown);
+         },
+
+         getInitialState: function(){
+            return({
+               xPos: 0,
+               yPos: 500
+            })
+         },
+         
+         render: function(){
+            var divStyle = {
+               background: 'red',
+               height: '100px',
+               width: '100px',
+               position: 'absolute',
+               left: this.state.xPos,
+               top: this.state.yPos
+            };
+            return(
+              <div style={divStyle} className="box" />
+            );
+         }
+      });
+      React.render(<Game />,document.getElementById('content'));
+    </script>
+  </body>
+</html>
