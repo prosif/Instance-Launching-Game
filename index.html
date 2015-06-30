@@ -9,6 +9,14 @@
         h1{
             position: absolute;
             color: white;
+            margin: 0;
+        }
+        h2{
+          position: absolute;
+          color: white;
+          margin: 0;
+          top: 25%;
+          left: 50%;
         }
         body{
             margin: 0;
@@ -28,7 +36,8 @@
                activeEnemies: 0,
                enemies: {},
                playerXPos: 0,
-               clearedWave: false
+               clearedWave: false,
+               mistake: null
             });
          },
 
@@ -36,26 +45,41 @@
            this.generateNew();
          },
 
-         handlePass: function(){
+         givePoint: function(){
             this.setState({
                points: this.state.points + 1
             });
          },
 
-         generateNew: function(){
+        getPlayerPos: function(){
+            return this.state.playerXPos;
+        },
+
+        handleCollision: function(){
+            this.setState({
+                mistake: "ayy",
+                points: this.state.points - 5
+            });
+            setTimeout(function(){
+                this.setState({
+                   mistake: null
+                });
+            }.bind(this), 3000);
+        },
+
+        generateNew: function(){
             var enemies = this.state.enemies;
             var enemyLength = Object.keys(enemies).length;
-            enemies[enemyLength] = <Enemy id={enemyLength} pass={this.handlePass} generate={this.generateNew} />;
+            enemies[enemyLength] = <Enemy id={enemyLength} pass={this.givePoint} generate={this.generateNew} playerPos={this.getPlayerPos} onCollide={this.handleCollision} />;
             this.setState({
                 enemies: enemies
             });
-         },
+        },
 
          handlePlayerMovement: function(pos){
            this.setState({
                playerXPos: pos
            });
-           console.log(this.state.playerXPos);
          },
 
          render: function() {
@@ -68,6 +92,7 @@
             return (
                <div style={divStyle} className="game">
                <h1>{this.state.points}</h1>
+               <h2>{this.state.mistake}</h2>
                <Player onMove={this.handlePlayerMovement} />
                {this.state.enemies}
                </div>
@@ -86,7 +111,9 @@
 
          moveDown: function(){
             if(this.state.yPos >= 400 && !this.state.passed){
-                this.props.pass();
+                if(this.state.shouldGivePoint) {
+                    this.props.pass();
+                }
                 this.setState({
                    passed: true
                 });
@@ -95,14 +122,37 @@
 
             else {
                 this.setState({yPos: this.state.yPos + 100});
+                console.log("enemy x", this.state.xPos);
+                console.log("player x", this.props.playerPos());
+                this.checkForCollision();
             }
+         },
+
+         checkForCollision: function(){
+          if(this.state.yPos >= 400) {
+              if (this.state.xPos >= this.props.playerPos() && this.state.xPos < this.props.playerPos() + 100) {
+                  console.log("collision!");
+                  this.setState({
+                      shouldGivePoint: false
+                  });
+                  this.props.onCollide();
+              }
+              else if (this.state.xPos + 100 > this.props.playerPos() && this.state.xPos + 100 < this.props.playerPos() + 100) {
+                  console.log("collision!");
+                  this.setState({
+                      shouldGivePoint: false
+                  });
+                  this.props.onCollide();
+              }
+          }
          },
  
          getInitialState: function(){
             return({
                xPos: Math.random() * 1180,
                yPos: 0,
-               passed: false
+               passed: false,
+               shouldGivePoint: true
             })
          },
          
@@ -133,11 +183,15 @@
           switch (keyCode) {
               case 37:
                   e.preventDefault();
-                  this.setState({xPos: this.state.xPos - 20});
+                  if(this.state.xPos-20 >= 0) {
+                      this.setState({xPos: this.state.xPos - 20});
+                  }
                   break;
               case 39:
                   e.preventDefault();
-                  this.setState({xPos: this.state.xPos + 20});
+                  if(this.state.xPos+120 <= $(window).width()) {
+                      this.setState({xPos: this.state.xPos + 20});
+                  }
                   break;
           }
           this.props.onMove(this.state.xPos);
