@@ -37,12 +37,18 @@
                enemies: {},
                playerXPos: 0,
                clearedWave: false,
-               mistake: null
+               mistake: null,
+               difficulty: 1
             });
          },
 
          componentDidMount: function(){
            this.generateNew();
+           setInterval(
+               function(){
+                   this.generateNew();
+               }.bind(this)
+           , 7500);
          },
 
          givePoint: function(){
@@ -57,7 +63,7 @@
 
         handleCollision: function(){
             this.setState({
-                mistake: "ayy",
+                mistake: "whoops!",
                 points: this.state.points - 5
             });
             setTimeout(function(){
@@ -70,10 +76,12 @@
         generateNew: function(){
             var enemies = this.state.enemies;
             var enemyLength = Object.keys(enemies).length;
-            enemies[enemyLength] = <Enemy id={enemyLength} pass={this.givePoint} generate={this.generateNew} playerPos={this.getPlayerPos} onCollide={this.handleCollision} />;
-            this.setState({
-                enemies: enemies
-            });
+            if(enemyLength < 6) {
+                enemies[enemyLength] = <Enemy id={enemyLength} pass={this.givePoint} generate={this.generateNew} playerPos={this.getPlayerPos} onCollide={this.handleCollision} />;
+                this.setState({
+                    enemies: enemies
+                });
+            }
         },
 
          handlePlayerMovement: function(pos){
@@ -85,7 +93,7 @@
          render: function() {
             var gameWidth = $(window).width();
             var divStyle = {
-               background: 'black',
+               background: '#04A5B7',
                height: '500px',
                width: gameWidth
             };
@@ -102,7 +110,7 @@
 
       var Enemy = React.createClass({
          componentDidMount: function(){ 
-            setInterval(function(){this.moveDown()}.bind(this), 1000);
+            setInterval(function(){this.moveDown()}.bind(this), 500);
          },
 
          reset: function(){
@@ -110,7 +118,7 @@
          },
 
          moveDown: function(){
-            if(this.state.yPos >= 400 && !this.state.passed){
+            if(this.state.yPos > 300 && !this.state.passed){
                 if(this.state.shouldGivePoint) {
                     this.props.pass();
                 }
@@ -122,8 +130,6 @@
 
             else {
                 this.setState({yPos: this.state.yPos + 100});
-                console.log("enemy x", this.state.xPos);
-                console.log("player x", this.props.playerPos());
                 this.checkForCollision();
             }
          },
@@ -158,9 +164,9 @@
          
          render: function(){
             var divStyle = {
-               background: 'blue',
+               background: 'url("lightning.gif")',
                height: '100px',
-               width: '100px',
+               width: '86px',
                position: 'absolute',
                left: this.state.xPos,
                top: this.state.yPos
@@ -210,9 +216,9 @@
          
          render: function(){
             var divStyle = {
-               background: 'red',
-               height: '100px',
-               width: '100px',
+               background: 'url("iplant_logo.png")',
+               height: '50px',
+               width: '50px',
                position: 'absolute',
                left: this.state.xPos,
                top: this.state.yPos
