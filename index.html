@@ -10,6 +10,9 @@
             position: absolute;
             color: white;
         }
+        body{
+            margin: 0;
+        }
     </style>
   </head>
 
@@ -24,6 +27,7 @@
                points: 0,
                activeEnemies: 0,
                enemies: {},
+               playerXPos: 0,
                clearedWave: false
             });
          },
@@ -47,16 +51,24 @@
             });
          },
 
+         handlePlayerMovement: function(pos){
+           this.setState({
+               playerXPos: pos
+           });
+           console.log(this.state.playerXPos);
+         },
+
          render: function() {
+            var gameWidth = $(window).width();
             var divStyle = {
                background: 'black',
                height: '500px',
-               width: '100%'
+               width: gameWidth
             };
             return (
                <div style={divStyle} className="game">
                <h1>{this.state.points}</h1>
-               <Player />
+               <Player onMove={this.handlePlayerMovement} />
                {this.state.enemies}
                </div>
             );
@@ -73,7 +85,7 @@
          },
 
          moveDown: function(){
-            if(this.state.yPos > 500 && !this.state.passed){
+            if(this.state.yPos >= 400 && !this.state.passed){
                 this.props.pass();
                 this.setState({
                    passed: true
@@ -115,22 +127,20 @@
       });
 
       var Player = React.createClass({
-         moveBox: function(code){
-            switch(code){
-               case 37:
-                  this.setState({xPos: this.state.xPos-20});
-                  break; 
-               case 39:
-                  this.setState({xPos: this.state.xPos+20});
-                  break;
-            }
-         },
 
-         handleKeyDown: function(e){
-            keyCode = e.keyCode;
-            if(keyCode > 36 && keyCode < 41){
-               this.moveBox(keyCode);
-            }
+         handleKeyDown: function(e) {
+          keyCode = e.keyCode;
+          switch (keyCode) {
+              case 37:
+                  e.preventDefault();
+                  this.setState({xPos: this.state.xPos - 20});
+                  break;
+              case 39:
+                  e.preventDefault();
+                  this.setState({xPos: this.state.xPos + 20});
+                  break;
+          }
+          this.props.onMove(this.state.xPos);
          },
 
          componentDidMount: function(){
@@ -140,7 +150,7 @@
          getInitialState: function(){
             return({
                xPos: 0,
-               yPos: 500
+               yPos: 400
             })
          },
          
