@@ -23,7 +23,7 @@
             return({
                points: 0,
                activeEnemies: 0,
-               enemies: [],
+               enemies: {},
                clearedWave: false
             });
          },
@@ -32,21 +32,16 @@
            this.generateNew();
          },
 
-         handlePass: function(thing){
-            React.unmountComponentAtNode(document.getElementById(thing));
+         handlePass: function(){
             this.setState({
                points: this.state.points + 1
             });
-            this.generateNew();
          },
 
          generateNew: function(){
             var enemies = this.state.enemies;
-            for(var i=this.state.points; i < this.state.points+1; i++){
-                console.log(i);
-                enemies.push(<Enemy id={i} pass={this.handlePass} />);
-            }
-            console.log(enemies);
+            var enemyLength = Object.keys(enemies).length;
+            enemies[enemyLength] = <Enemy id={enemyLength} pass={this.handlePass} generate={this.generateNew} />;
             this.setState({
                 enemies: enemies
             });
@@ -73,13 +68,19 @@
             setInterval(function(){this.moveDown()}.bind(this), 1000);
          },
 
+         reset: function(){
+           this.setState(this.getInitialState());
+         },
+
          moveDown: function(){
             if(this.state.yPos > 500 && !this.state.passed){
-                this.props.pass(this.props.id);
+                this.props.pass();
                 this.setState({
                    passed: true
                 });
+                this.reset();
             }
+
             else {
                 this.setState({yPos: this.state.yPos + 100});
             }
@@ -102,12 +103,14 @@
                left: this.state.xPos,
                top: this.state.yPos
             };
+
             if(!this.state.passed){
                return(
                  <div id={this.props.id} style={divStyle} className="enemy" />
                );
             }
-             return <div />
+
+            return <div />
          }
       });
 
