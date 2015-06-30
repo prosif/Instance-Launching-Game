@@ -9,14 +9,14 @@
         h1{
             position: absolute;
             color: white;
-            margin: 0;
+            margin: 2%;
         }
         h2{
           position: absolute;
           color: white;
           margin: 0;
           top: 25%;
-          left: 50%;
+          left: 45%;
         }
         body{
             margin: 0;
@@ -33,12 +33,9 @@
          getInitialState: function(){
             return({
                points: 0,
-               activeEnemies: 0,
                enemies: {},
                playerXPos: 0,
-               clearedWave: false,
-               mistake: null,
-               difficulty: 1
+               mistake: null
             });
          },
 
@@ -95,6 +92,7 @@
             var divStyle = {
                background: '#04A5B7',
                height: '500px',
+               paddingBottom: '25px',
                width: gameWidth
             };
             return (
@@ -164,7 +162,7 @@
          
          render: function(){
             var divStyle = {
-               background: 'url("lightning.gif")',
+               background: 'url("lightning.png")',
                height: '100px',
                width: '86px',
                position: 'absolute',
@@ -217,14 +215,17 @@
          render: function(){
             var divStyle = {
                background: 'url("iplant_logo.png")',
-               height: '50px',
-               width: '50px',
                position: 'absolute',
-               left: this.state.xPos,
-               top: this.state.yPos
+                width: '105px',
+                height: '105px',
+                left: this.state.xPos,
+                top: this.state.yPos
             };
+
             return(
-              <div style={divStyle} className="box" />
+
+                  <div style={divStyle} className="box" />
+
             );
          }
       });
